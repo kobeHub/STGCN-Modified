@@ -10,6 +10,7 @@ from models.tester import model_test
 
 import argparse
 
+tf.compat.v1.disable_eager_execution()
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 config = tf.compat.v1.ConfigProto()
@@ -17,16 +18,21 @@ config.gpu_options.allow_growth = True
 tf.compat.v1.Session(config=config)
 
 parser = argparse.ArgumentParser()
+# The number of stations. 228 or 1026
 parser.add_argument("--n_route", type=int, default=228)
+# The input length of the sequence, number of frames. 12 frames
+# contain 1h data, 9 frames contain 45min data.
 parser.add_argument("--n_his", type=int, default=12)
 parser.add_argument("--n_pred", type=int, default=9)
 parser.add_argument("--batch_size", type=int, default=50)
 parser.add_argument("--epoch", type=int, default=50)
 parser.add_argument("--save", type=int, default=10)
+# Kernel size
 parser.add_argument("--ks", type=int, default=3)
 parser.add_argument("--kt", type=int, default=3)
 parser.add_argument("--lr", type=float, default=1e-3)
 parser.add_argument("--opt", type=str, default="RMSProp")
+# The file name of customed adjacency matrix
 parser.add_argument("--graph", type=str, default="default")
 parser.add_argument("--inf_mode", type=str, default="merge")
 
@@ -54,7 +60,11 @@ tf.compat.v1.add_to_collection(
 )
 
 # Data Preprocessing
+# The matrix shape: e.g. 12672 * 228; [len_seq, num_road]; there're
+# 288 slots in each day, data from 44 days formed to 12672 seqs.
 data_file = f"PeMSD7_V_{n}.csv"
+# The number of dates for traininh, validation and test; 34 days'
+# data is used for training.
 n_train, n_val, n_test = 34, 5, 5
 PeMS = data_utils.data_gen(
     pjoin("./dataset", data_file), (n_train, n_val, n_test), n, n_his + n_pred
