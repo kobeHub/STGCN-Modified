@@ -24,12 +24,6 @@ Traffic forecast is a typical time-series prediction problem, i.e. predicting th
 **Fig.1 Graph-structured traffic data.**  
 Each $v_t$ indicates a frame of current traffic status at time step $t$, which is recorded in a graph-structured data matrix.
 
-## Network Structure
-
-<p align="center"><img src="figures/STGCN.png" width="50%" height="50%"></p>
-  
-**Fig. 2 Architecture of spatio-temporal graph convolutional networks.**  
-The framework STGCN consists of two spatio-temporal convolutional blocks (ST-Conv blocks) and a fully-connected output layer in the end. Each ST-Conv block contains two temporal gated convolution layers and one spatial graph convolution layer in the middle. The residual connection and bottleneck strategy are applied inside each block. The input $v_{t-M+1}, ..., v_t$ is uniformly processed by ST-Conv blocks to explore spatial and temporal dependencies coherently. Comprehensive features are integrated by an output layer to generate the final prediction $\hat{v}$.
 
 ## Results
 
@@ -98,7 +92,7 @@ All of our experiments use 60 minutes as the historical time window, a.k.a. 12 o
 
 ### Training
 
-python main.py --n_route {`$num_route`} --graph {`$weight_matrix_file`}
+python main.py --struct=tcn --n_route {`$num_route`} --graph {`$weight_matrix_file`} --save=3
 
 **Default settings**:
 
@@ -111,55 +105,6 @@ python main.py --n_route {`$num_route`} --graph {`$weight_matrix_file`}
 
 Note: it normally takes around 6s on a NVIDIA TITAN Xp for one epoch with the batch size of 50 and n_route of 228.
 
-### Folder structure
-
-```
-├── data_loader
-│   ├── data_utils.py
-│   └── __init__.py
-├── dataset
-│   ├── PeMSD7_V_228.csv
-│   ├── PeMSD7_W_228.csv
-│   ├── PeMSD7_V_1026.csv
-│   └── PeMSD7_W_1026.csv
-├── main.py
-├── models
-│   ├── base_model.py
-│   ├── __init__.py
-│   ├── layers.py
-│   ├── tester.py
-│   └── trainer.py
-├── output
-│   ├── models
-│   └── tensorboard
-├── README.md
-└── utils
-    ├── __init__.py
-    ├── math_graph.py
-    └── math_utils.py
-```
-
-## Updates
-
-**Feb. 22, 2022**:
-
-- Sensor Station List of PeMSD7-M released.
-
-**Feb. 11, 2022**:
-
-- Dataset PeMSD7-L (1,026 nodes) released.
-- Fix the issue in size calculation of temporal channel. Thanks to @KingWang93 and @cheershuaizhao.
-
-**Apr. 18, 2019**:
-
-- Dataset PeMSD7-M (228 nodes) released.
-
-**Jan. 14, 2019**:
-
-- Code refactoring based on the [Tensorflow-Project-Template](https://github.com/MrGemy95/Tensorflow-Project-Template), following the PEP 8 code style;
-- Function model_save(), model_test() and tensorboard support are added;
-- The process of model training and inference is optimized;
-- Corresponding code comments are updated.
 
 ## Citation
 
