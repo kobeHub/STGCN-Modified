@@ -8,7 +8,13 @@ import numpy as np
 import time
 
 
-def model_train(inputs, blocks, args, sum_path="./output/tensorboard"):
+def model_train(
+    inputs,
+    blocks,
+    args,
+    sum_path="./output/tensorboard",
+    model_save_dir="./output/models",
+):
     """
     Train the base model.
     :param inputs: instance of class Dataset, data source for training.
@@ -24,12 +30,23 @@ def model_train(inputs, blocks, args, sum_path="./output/tensorboard"):
         args.opt,
     )
 
+    is_modified = args.struct == "tcn"
+    if is_modified:
+        print("Train model with new temporal layer TCN")
+        sum_path = pjoin(sum_path, "modified")
+        model_save_dir = pjoin(model_save_dir, "modified")
+    else:
+        print("Train origin STGCN model")
+        sum_path = pjoin(sum_path, "original")
+        model_save_dir = pjoin(model_save_dir, "original")
+
     # Placeholder for model training
     x = tf.placeholder(tf.float32, [None, n_his + 1, n, 1], name="data_input")
+    # Prob of keep elements on dropout layer.
     keep_prob = tf.placeholder(tf.float32, name="keep_prob")
 
     # Define model loss
-    train_loss, pred = build_model(x, n_his, Ks, Kt, blocks, keep_prob)
+    train_loss, pred = build_model(x, n_his, Ks, Kt, blocks, keep_prob, is_modified)
     tf.summary.scalar("train_loss", train_loss)
     copy_loss = tf.add_n(tf.get_collection("copy_loss"))
     tf.summary.scalar("copy_loss", copy_loss)
@@ -51,6 +68,8 @@ def model_train(inputs, blocks, args, sum_path="./output/tensorboard"):
     )
     tf.summary.scalar("learning_rate", lr)
     step_op = tf.assign_add(global_steps, 1)
+    # A context manager to ensure the step advance will
+    # be executed before the minimize operation is one session
     with tf.control_dependencies([step_op]):
         if opt == "RMSProp":
             train_op = tf.train.RMSPropOptimizer(lr).minimize(train_loss)
@@ -61,9 +80,23 @@ def model_train(inputs, blocks, args, sum_path="./output/tensorboard"):
 
     merged = tf.summary.merge_all()
 
+    # Restore model
+    saver = tf.train.Saver(max_to_keep=3)
+    saved_name = "STGCN-TCN" if is_modified else "STGCN"
+
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(pjoin(sum_path, "train"), sess.graph)
-        sess.run(tf.global_variables_initializer())
+        latest_ckp = tf.train.latest_checkpoint(model_save_dir)
+        if latest_ckp:
+            saver.restore(sess, latest_ckp)
+            global_step_value = tf.train.global_step(sess, global_steps)
+            print(
+                f"Using saved model to train: {latest_ckp},"
+                f" global steps: {global_step_value}"
+            )
+        else:
+            sess.run(tf.global_variables_initializer())
+            print("Training from scratch")
 
         if inf_mode == "sep":
             # for inference mode 'sep', the type of step index is int.
@@ -98,7 +131,7 @@ def model_train(inputs, blocks, args, sum_path="./output/tensorboard"):
                         feed_dict={x: x_batch[:, 0 : n_his + 1, :, :], keep_prob: 1.0},
                     )
                     print(
-                        f"Epoch {i:2d}, Step {j:3d}: [{loss_value[0]:.3f}, {loss_value[1]:.3f}]"
+                        f"Epoch {i:2d}, Step {j:3d}: [Train Loss: {loss_value[0]:.3f}, Copy Loss: {loss_value[1]:.3f}]"
                     )
             print(f"Epoch {i:2d} Training Time {time.time() - start_time:.3f}s")
 
@@ -126,6 +159,6 @@ def model_train(inputs, blocks, args, sum_path="./output/tensorboard"):
             print(f"Epoch {i:2d} Inference Time {time.time() - start_time:.3f}s")
 
             if (i + 1) % args.save == 0:
-                model_save(sess, global_steps, "STGCN")
+                model_save(saver, sess, global_steps, saved_name, model_save_dir)
         writer.close()
     print("Training model finished!")

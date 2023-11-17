@@ -19,22 +19,74 @@ tf.compat.v1.Session(config=config)
 
 parser = argparse.ArgumentParser()
 # The number of stations. 228 or 1026
-parser.add_argument("--n_route", type=int, default=228)
+parser.add_argument(
+    "--n_route",
+    type=int,
+    help="The number of observation stations (228 or 1026).",
+    default=228,
+)
 # The input length of the sequence, number of frames. 12 frames
 # contain 1h data, 9 frames contain 45min data.
-parser.add_argument("--n_his", type=int, default=12)
-parser.add_argument("--n_pred", type=int, default=9)
-parser.add_argument("--batch_size", type=int, default=50)
-parser.add_argument("--epoch", type=int, default=50)
-parser.add_argument("--save", type=int, default=10)
-# Kernel size
-parser.add_argument("--ks", type=int, default=3)
-parser.add_argument("--kt", type=int, default=3)
-parser.add_argument("--lr", type=float, default=1e-3)
-parser.add_argument("--opt", type=str, default="RMSProp")
+parser.add_argument(
+    "--n_his",
+    type=int,
+    help="The length of input frames, each frame is sampling in an interval of 5min (default=12).",
+    default=12,
+)
+parser.add_argument(
+    "--n_pred",
+    type=int,
+    help="The length of predicted frames, 9 frames contains 45min data (default=9).",
+    default=9,
+)
+parser.add_argument(
+    "--batch_size", type=int, help="Training batch size (default=50).", default=50
+)
+parser.add_argument(
+    "--epoch", type=int, help="Global training epochs (default=50).", default=50
+)
+# The epoch number to save model
+parser.add_argument(
+    "--save", type=int, help="The gap of epochs to save model (default=5).", default=5
+)
+# Kernel size for spatial conv
+parser.add_argument(
+    "--ks",
+    type=int,
+    help="Kernel size for the spatial conv layer (default=3).",
+    default=3,
+)
+# Kernal size for tempora conv
+parser.add_argument(
+    "--kt",
+    type=int,
+    help="Kernel size for the temporal conv layer (default=3).",
+    default=3,
+)
+parser.add_argument(
+    "--lr", type=float, help="Learning rate (default=1e-3).", default=1e-3
+)
+parser.add_argument(
+    "--opt",
+    type=str,
+    help="Optimizer used to minimize the loss (default=RMSProp)",
+    default="RMSProp",
+)
 # The file name of customed adjacency matrix
-parser.add_argument("--graph", type=str, default="default")
+parser.add_argument(
+    "--graph",
+    type=str,
+    help="The file name of adjacency matrix file",
+    default="default",
+)
 parser.add_argument("--inf_mode", type=str, default="merge")
+# The model structure
+parser.add_argument(
+    "--struct",
+    type=str,
+    help="The model structure used for experiment (defalut=tcn)",
+    default="tcn",
+)
 
 args = parser.parse_args()
 print(f"Training configs: {args}")
@@ -55,6 +107,7 @@ else:
 L = math_graph.scaled_laplacian(W)
 # Alternative approximation method: 1st approx - first_approx(W, n).
 Lk = math_graph.cheb_poly_approx(L, Ks, n)
+# Add the LK matrix to collection.
 tf.compat.v1.add_to_collection(
     name="graph_kernel", value=tf.cast(tf.constant(Lk), tf.float32)
 )

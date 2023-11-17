@@ -2,8 +2,11 @@ from models.layers import st_conv_block, output_layer
 from os.path import join as pjoin
 import tensorflow.compat.v1 as tf
 
+import os
+import pathlib
 
-def build_model(inputs, n_his, Ks, Kt, blocks, keep_prob):
+
+def build_model(inputs, n_his, Ks, Kt, blocks, keep_prob, is_modified):
     """
     Build the base model.
     :param inputs: placeholder.
@@ -12,14 +15,26 @@ def build_model(inputs, n_his, Ks, Kt, blocks, keep_prob):
     :param Kt: int, kernel size of temporal convolution.
     :param blocks: list, channel configs of st_conv blocks.
     :param keep_prob: placeholder.
+    :param is_modified: whether use the modified TCN.
     """
+    # shape: [len_seq, n_frame, n_route, C]
+    # Get the input frames.
     x = inputs[:, 0:n_his, :, :]
 
     # Ko>0: kernel size of temporal convolution in the output layer.
     Ko = n_his
     # ST-Block
     for i, channels in enumerate(blocks):
-        x = st_conv_block(x, Ks, Kt, channels, i, keep_prob, act_func="GLU")
+        x = st_conv_block(
+            x,
+            Ks,
+            Kt,
+            channels,
+            i,
+            keep_prob,
+            is_modified=is_modified,
+            act_func="GLU",
+        )
         Ko -= 2 * (Kt - 1)
 
     # Output Layer
@@ -42,7 +57,7 @@ def build_model(inputs, n_his, Ks, Kt, blocks, keep_prob):
     return train_loss, single_pred
 
 
-def model_save(sess, global_steps, model_name, save_path="./output/models/"):
+def model_save(saver, sess, global_steps, model_name, save_path):
     """
     Save the checkpoint of trained model.
     :param sess: tf.Session().
@@ -51,7 +66,8 @@ def model_save(sess, global_steps, model_name, save_path="./output/models/"):
     :param save_path: str, the path of saved model.
     :return:
     """
-    saver = tf.train.Saver(max_to_keep=3)
+    if not os.path.exists(save_path):
+        pathlib.Path(save_path).mkdir(parents=True)
     prefix_path = saver.save(
         sess, pjoin(save_path, model_name), global_step=global_steps
     )

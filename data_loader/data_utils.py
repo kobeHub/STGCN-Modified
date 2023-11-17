@@ -61,7 +61,6 @@ def data_gen(file_path, data_config, n_route, n_frame=21, day_slot=288):
     :return: dict, dataset that contains training, validation and test with stats.
     """
     n_train, n_val, n_test = data_config
-    data_seq = None
     # generate training, validation and test data
     try:
         data_seq = pd.read_csv(file_path, header=None).values
