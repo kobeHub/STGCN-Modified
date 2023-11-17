@@ -189,7 +189,7 @@ def fully_con_layer(x, n, channel, scope):
     w = tf.get_variable(name=f"w_{scope}", shape=[1, 1, channel, 1], dtype=tf.float32)
     tf.add_to_collection(name="weight_decay", value=tf.nn.l2_loss(w))
     b = tf.get_variable(
-        name=f"b_{scope}", initializer=tf.zeros([n, 1]), dtype=tf.float32
+        name=f"b_{scope}", initializer=tf.zeros([n, 1], dtype=tf.float32)
     )
     return tf.nn.conv2d(x, w, strides=[1, 1, 1, 1], padding="SAME") + b
 
