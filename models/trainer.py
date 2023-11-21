@@ -6,14 +6,15 @@ from os.path import join as pjoin
 import tensorflow as tf
 import numpy as np
 import time
+import os
 
 
 def model_train(
     inputs,
     blocks,
     args,
-    sum_path="./output/tensorboard",
-    model_save_dir="./output/models",
+    sum_path=pjoin(pjoin(os.getcwd(), "output"), "tensorboard"),
+    model_save_dir=pjoin(pjoin(os.getcwd(), "output"), "models")",
 ):
     """
     Train the base model.

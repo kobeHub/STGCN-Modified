@@ -96,12 +96,13 @@ Ks, Kt = args.ks, args.kt
 # blocks: settings of channel size in st_conv_blocks / bottleneck design
 blocks = [[1, 32, 64], [64, 32, 128]]
 
+dataset_path = pjoin(os.getcwd(), "dataset")
 # Load wighted adjacency matrix W
 if args.graph == "default":
-    W = math_graph.weight_matrix(pjoin("./dataset", f"PeMSD7_W_{n}.csv"))
+    W = math_graph.weight_matrix(pjoin(dataset_path, f"PeMSD7_W_{n}.csv"))
 else:
     # load customized graph weight matrix
-    W = math_graph.weight_matrix(pjoin("./dataset", args.graph))
+    W = math_graph.weight_matrix(pjoin(dataset_path, args.graph))
 
 # Calculate graph kernel
 L = math_graph.scaled_laplacian(W)
@@ -118,7 +119,7 @@ data_file = f"PeMSD7_V_{n}.csv"
 # data is used for training.
 n_train, n_val, n_test = 34, 5, 5
 PeMS = data_utils.data_gen(
-    pjoin("./dataset", data_file), (n_train, n_val, n_test), n, n_his + n_pred
+    pjoin(dataset_path, data_file), (n_train, n_val, n_test), n, n_his + n_pred
 )
 print(f">> Loading dataset with Mean: {PeMS.mean:.2f}, STD: {PeMS.std:.2f}")
 
