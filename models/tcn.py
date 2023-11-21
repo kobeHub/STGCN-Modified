@@ -14,12 +14,10 @@ def gated_tcn_layer(x, Kt, c_in, c_out):
     _, T, n, _ = x.get_shape().as_list()
 
     if c_in > c_out:
-        w_input = tf.compat.v1.get_variable(
+        w_input = tf.get_variable(
             "tcn_input", shape=[1, 1, c_in, c_out], dtype=tf.float32
         )
-        tf.compat.v1.add_to_collection(
-            name="weight_decay", value=tf.nn.l2_loss(w_input)
-        )
+        tf.add_to_collection(name="weight_decay", value=tf.nn.l2_loss(w_input))
         x_input = tf.nn.conv2d(x, w_input, strides=[1, 1, 1, 1], padding="SAME")
     elif c_in < c_out:
         # if the size of input channel is less than the output,
@@ -33,11 +31,11 @@ def gated_tcn_layer(x, Kt, c_in, c_out):
     residual = x_input[:, Kt - 1 : T, :, :]
 
     # TCN-a part
-    filter_wt = tf.compat.v1.get_variable(
+    filter_wt = tf.get_variable(
         name="filter_wt", shape=[Kt, 1, c_in, c_out], dtype=tf.float32
     )
-    tf.compat.v1.add_to_collection(name="weight_decay", value=tf.nn.l2_loss(filter_wt))
-    filter_bt = tf.compat.v1.get_variable(
+    tf.add_to_collection(name="weight_decay", value=tf.nn.l2_loss(filter_wt))
+    filter_bt = tf.get_variable(
         name="filter_bt", initializer=tf.zeros([c_out], dtype=tf.float32)
     )
     filter_conv = (
@@ -45,11 +43,11 @@ def gated_tcn_layer(x, Kt, c_in, c_out):
     )
 
     # TCN-b part
-    gated_wt = tf.compat.v1.get_variable(
+    gated_wt = tf.get_variable(
         name="gated_wt", shape=[Kt, 1, c_in, c_out], dtype=tf.float32
     )
-    tf.compat.v1.add_to_collection(name="weight_decay", value=tf.nn.l2_loss(gated_wt))
-    gated_bt = tf.compat.v1.get_variable(
+    tf.add_to_collection(name="weight_decay", value=tf.nn.l2_loss(gated_wt))
+    gated_bt = tf.get_variable(
         name="gated_bt", initializer=tf.zeros([c_out], dtype=tf.float32)
     )
     gated_conv = (

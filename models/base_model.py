@@ -1,6 +1,6 @@
 from models.layers import st_conv_block, output_layer
 from os.path import join as pjoin
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 import os
 import pathlib

@@ -10,12 +10,12 @@ from models.tester import model_test
 
 import argparse
 
-tf.compat.v1.disable_eager_execution()
+tf.disable_eager_execution()
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-config = tf.compat.v1.ConfigProto()
+config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-tf.compat.v1.Session(config=config)
+tf.Session(config=config)
 
 parser = argparse.ArgumentParser()
 # The number of stations. 228 or 1026
@@ -108,9 +108,7 @@ L = math_graph.scaled_laplacian(W)
 # Alternative approximation method: 1st approx - first_approx(W, n).
 Lk = math_graph.cheb_poly_approx(L, Ks, n)
 # Add the LK matrix to collection.
-tf.compat.v1.add_to_collection(
-    name="graph_kernel", value=tf.cast(tf.constant(Lk), tf.float32)
-)
+tf.add_to_collection(name="graph_kernel", value=tf.cast(tf.constant(Lk), tf.float32))
 
 # Data Preprocessing
 # The matrix shape: e.g. 12672 * 228; [len_seq, num_road]; there're
