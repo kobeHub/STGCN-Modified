@@ -73,12 +73,14 @@ def evaluation(y, y_, x_stats):
     """
     dim = len(y_.shape)
 
+    # shape: [batch_size, n_route, C_0]
     if dim == 3:
         # single_step case
         v = z_inverse(y, x_stats["mean"], x_stats["std"])
         v_ = z_inverse(y_, x_stats["mean"], x_stats["std"])
         return np.array([MAPE(v, v_), MAE(v, v_), RMSE(v, v_)])
     else:
+        # shape: [n_pred, batch_size, n_route, C_0]
         # multi_step case
         tmp_list = []
         # y -> [time_step, batch_size, n_route, 1]
