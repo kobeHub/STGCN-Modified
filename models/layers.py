@@ -174,7 +174,7 @@ def st_conv_block(x, Ks, Kt, channels, scope, keep_prob, is_modified, act_func="
             else temporal_conv_layer(x_t, Kt, c_t, c_oo)
         )
     x_ln = layer_norm(x_o, f"layer_norm_{scope}")
-    return tf.nn.dropout(x_ln, rate=1.0 - keep_prob)
+    return tf.nn.dropout(x_ln, keep_prob=keep_prob)
 
 
 def fully_con_layer(x, n, channel, scope):

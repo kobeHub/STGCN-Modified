@@ -10,7 +10,7 @@ from models.tester import model_test
 
 import argparse
 
-tf.disable_eager_execution()
+# tf.disable_eager_execution()
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 config = tf.ConfigProto()
