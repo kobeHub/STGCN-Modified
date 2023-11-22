@@ -69,6 +69,10 @@ def model_save(saver, sess, global_steps, model_name, save_path):
     if not os.path.exists(save_path):
         pathlib.Path(save_path).mkdir(parents=True)
     prefix_path = saver.save(
-        sess, pjoin(save_path, model_name), global_step=global_steps
+        sess,
+        pjoin(save_path, model_name),
+        global_step=global_steps,
+        write_meta_graph=True,
+        write_state=True,
     )
     print(f"<< Saving model to {prefix_path} ...")

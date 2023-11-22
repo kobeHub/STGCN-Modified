@@ -90,6 +90,12 @@ parser.add_argument(
 parser.add_argument(
     "--train", type=bool, help="If it needs training (default=False)", default=False
 )
+parser.add_argument(
+    "--metafile",
+    type=str,
+    help="Last model meta file name (default=None)",
+    default=None,
+)
 
 args = parser.parse_args()
 print(f"Training configs: {args}")

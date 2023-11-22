@@ -94,6 +94,7 @@ def model_test(
     n_his,
     n_pred,
     inf_mode,
+    meta_file,
     load_path=pjoin(pjoin(os.getcwd(), "output"), "models"),
 ):
     """
@@ -106,7 +107,16 @@ def model_test(
     :param load_path: str, the path of loaded model.
     """
     start_time = time.time()
-    model_path = tf.train.get_checkpoint_state(load_path).model_checkpoint_path
+    model_state = tf.train.get_checkpoint_state(load_path)
+
+    if model_state is not None:
+        model_path = model_state.model_checkpoint_path
+    else:
+        if meta_file is None:
+            print("No state file and meta_file name, exit")
+            raise
+        model_path = pjoin(load_path, meta_file)
+    print(f"Load from model path: {model_path}")
 
     test_graph = tf.Graph()
 
