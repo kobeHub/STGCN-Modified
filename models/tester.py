@@ -95,6 +95,7 @@ def model_test(
     n_pred,
     inf_mode,
     meta_file,
+    struct,
     load_path=pjoin(pjoin(os.getcwd(), "output"), "models"),
 ):
     """
@@ -108,6 +109,7 @@ def model_test(
     """
     start_time = time.time()
     model_state = tf.train.get_checkpoint_state(load_path)
+    load_path = pjoin(load_path, "modified" if struct == "tcn" else "original")
 
     if model_state is not None:
         model_path = model_state.model_checkpoint_path
