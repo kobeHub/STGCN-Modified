@@ -87,6 +87,9 @@ parser.add_argument(
     help="The model structure used for experiment (defalut=tcn)",
     default="tcn",
 )
+parser.add_argument(
+    "--train", type=bool, help="If it needs training (default=False)", default=False
+)
 
 args = parser.parse_args()
 print(f"Training configs: {args}")
@@ -124,5 +127,8 @@ PeMS = data_utils.data_gen(
 print(f">> Loading dataset with Mean: {PeMS.mean:.2f}, STD: {PeMS.std:.2f}")
 
 if __name__ == "__main__":
-    model_train(PeMS, blocks, args)
+    if args.train:
+        model_train(PeMS, blocks, args)
+    else:
+        print("Only do inference!")
     model_test(PeMS, PeMS.get_len("test"), n_his, n_pred, args.inf_mode)

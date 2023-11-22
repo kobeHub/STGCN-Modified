@@ -5,6 +5,7 @@ from os.path import join as pjoin
 import tensorflow as tf
 import numpy as np
 import time
+import os
 
 
 def multi_pred(
@@ -88,7 +89,12 @@ def model_inference(
 
 
 def model_test(
-    inputs, batch_size, n_his, n_pred, inf_mode, load_path="./output/models/"
+    inputs,
+    batch_size,
+    n_his,
+    n_pred,
+    inf_mode,
+    load_path=pjoin(pjoin(os.getcwd(), "output"), "models"),
 ):
     """
     Load and test saved model from the checkpoint.

@@ -14,7 +14,7 @@ def model_train(
     blocks,
     args,
     sum_path=pjoin(pjoin(os.getcwd(), "output"), "tensorboard"),
-    model_save_dir=pjoin(pjoin(os.getcwd(), "output"), "models")",
+    model_save_dir=pjoin(pjoin(os.getcwd(), "output"), "models"),
 ):
     """
     Train the base model.
