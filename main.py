@@ -137,4 +137,4 @@ if __name__ == "__main__":
         model_train(PeMS, blocks, args)
     else:
         print("Only do inference!")
-    model_test(PeMS, PeMS.get_len("test"), n_his, n_pred, args.inf_mode)
+    model_test(PeMS, PeMS.get_len("test"), n_his, n_pred, args.inf_mode, args.metafile)
