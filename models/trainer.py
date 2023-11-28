@@ -91,7 +91,7 @@ def model_train(
         for i in range(1, 4)
     ]
     MAPE_summary = [
-        tf.summary.scalar(f"Inference_MAPE_seq_{1*3}", MAPE_metrics[i - 1][0])
+        tf.summary.scalar(f"Inference_MAPE_seq_{i*3}", MAPE_metrics[i - 1][0])
         for i in range(1, 4)
     ]
     MAE_metrics = [
@@ -99,7 +99,7 @@ def model_train(
         for i in range(1, 4)
     ]
     MAE_summary = [
-        tf.summary.scalar(f"Inference_MAE_seq_{1*3}", MAE_metrics[i - 1][0])
+        tf.summary.scalar(f"Inference_MAE_seq_{i*3}", MAE_metrics[i - 1][0])
         for i in range(1, 4)
     ]
     RMSE_metrics = [
@@ -107,7 +107,7 @@ def model_train(
         for i in range(1, 4)
     ]
     RMSE_summary = [
-        tf.summary.scalar(f"Inference_RMSE_seq_{1*3}", RMSE_metrics[i - 1][0])
+        tf.summary.scalar(f"Inference_RMSE_seq_{i*3}", RMSE_metrics[i - 1][0])
         for i in range(1, 4)
     ]
     # MAE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAE")
