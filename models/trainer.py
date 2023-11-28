@@ -87,11 +87,11 @@ def model_train(
 
     # Infernece metrics
     MAPE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAPE")
-    MAPE_summary = tf.summary.scalar("Inference_MAPE", MAPE_metrics)
+    MAPE_summary = tf.summary.scalar("Inference_MAPE", MAPE_metrics[0])
     MAE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAE")
-    MAE_summary = tf.summary.scalar("Inference_MAE", MAE_metrics)
+    MAE_summary = tf.summary.scalar("Inference_MAE", MAE_metrics[0])
     RMSE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_RMSE")
-    RMSE_summary = tf.summary.scalar("Inference_RMSE", RMSE_metrics)
+    RMSE_summary = tf.summary.scalar("Inference_RMSE", RMSE_metrics[0])
 
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(pjoin(sum_path, "train"), sess.graph)
@@ -159,15 +159,17 @@ def model_train(
 
             for ix in tmp_idx:
                 va, te = min_va_val[ix - 2 : ix + 1], min_val[ix - 2 : ix + 1]
-                summary_str, _ = sess.run(
+                summary1, summary2, summary3 = sess.run(
                     [MAPE_summary, MAE_summary, RMSE_summary],
                     feed_dict={
-                        MAPE_metrics: (va[0], te[0]),
-                        MAE_metrics: (va[1], te[1]),
-                        RMSE_metrics: (va[2], te[2]),
+                        MAPE_metrics: [va[0], te[0]],
+                        MAE_metrics: [va[1], te[1]],
+                        RMSE_metrics: [va[2], te[2]],
                     },
                 )
-                writer.add_summary(summary_str, ix + 1)
+                writer.add_summary(summary1, ix + 1)
+                writer.add_summary(summary2, ix + 1)
+                writer.add_summary(summary3, ix + 1)
                 print(
                     f"Time Step {ix + 1}: "
                     f"MAPE {va[0]:7.3%}, {te[0]:7.3%}; "
