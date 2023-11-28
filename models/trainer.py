@@ -86,12 +86,34 @@ def model_train(
     saved_name = "STGCN-TCN" if is_modified else "STGCN"
 
     # Infernece metrics
-    MAPE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAPE")
-    MAPE_summary = tf.summary.scalar("Inference_MAPE", MAPE_metrics[0])
-    MAE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAE")
-    MAE_summary = tf.summary.scalar("Inference_MAE", MAE_metrics[0])
-    RMSE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_RMSE")
-    RMSE_summary = tf.summary.scalar("Inference_RMSE", RMSE_metrics[0])
+    MAPE_metrics = [
+        tf.placeholder(tf.float32, shape=(2,), name=f"Inference_MAPE_seq_{i*3}")
+        for i in range(1, 4)
+    ]
+    MAPE_summary = [
+        tf.summary.scalar(f"Inference_MAPE_seq_{1*3}", MAPE_metrics[i - 1][0])
+        for i in range(1, 4)
+    ]
+    MAE_metrics = [
+        tf.placeholder(tf.float32, shape=(2,), name=f"Inference_MAE_seq_{i*3}")
+        for i in range(1, 4)
+    ]
+    MAE_summary = [
+        tf.summary.scalar(f"Inference_MAE_seq_{1*3}", MAE_metrics[i - 1][0])
+        for i in range(1, 4)
+    ]
+    RMSE_metrics = [
+        tf.placeholder(tf.float32, shape=(2,), name=f"Inference_RMPE_seq_{i*3}")
+        for i in range(1, 4)
+    ]
+    RMSE_summary = [
+        tf.summary.scalar(f"Inference_RMSE_seq_{1*3}", RMSE_metrics[i - 1][0])
+        for i in range(1, 4)
+    ]
+    # MAE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAE")
+    # MAE_summary = tf.summary.scalar("Inference_MAE", MAE_metrics[0])
+    # RMSE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_RMSE")
+    # RMSE_summary = tf.summary.scalar("Inference_RMSE", RMSE_metrics[0])
 
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(pjoin(sum_path, "train"), sess.graph)
@@ -157,19 +179,19 @@ def model_train(
                 min_val,
             )
 
-            for ix in tmp_idx:
+            for i, ix in enumerate(tmp_idx):
                 va, te = min_va_val[ix - 2 : ix + 1], min_val[ix - 2 : ix + 1]
                 summary1, summary2, summary3 = sess.run(
-                    [MAPE_summary, MAE_summary, RMSE_summary],
+                    [MAPE_summary[i], MAE_summary[i], RMSE_summary[i]],
                     feed_dict={
-                        MAPE_metrics: [va[0], te[0]],
-                        MAE_metrics: [va[1], te[1]],
-                        RMSE_metrics: [va[2], te[2]],
+                        MAPE_metrics[i]: [va[0], te[0]],
+                        MAE_metrics[i]: [va[1], te[1]],
+                        RMSE_metrics[i]: [va[2], te[2]],
                     },
                 )
-                writer.add_summary(summary1, ix + 1)
-                writer.add_summary(summary2, ix + 1)
-                writer.add_summary(summary3, ix + 1)
+                writer.add_summary(summary1, i * epoch_step)
+                writer.add_summary(summary2, i * epoch_step)
+                writer.add_summary(summary3, i * epoch_step)
                 print(
                     f"Time Step {ix + 1}: "
                     f"MAPE {va[0]:7.3%}, {te[0]:7.3%}; "
