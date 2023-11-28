@@ -185,6 +185,7 @@ def model_train(
                 min_val,
             )
 
+            csv_row = [epoch_step * i]
             for k, ix in enumerate(tmp_idx):
                 va, te = min_va_val[ix - 2 : ix + 1], min_val[ix - 2 : ix + 1]
                 summary1, summary2, summary3 = sess.run(
@@ -204,9 +205,8 @@ def model_train(
                     f"MAE  {va[1]:4.3f}, {te[1]:4.3f}; "
                     f"RMSE {va[2]:6.3f}, {te[2]:6.3f}."
                 )
-                csv_wr.writerow(
-                    [epoch_step * i, va[0], te[0], va[1], te[1], va[2], te[2]]
-                )
+                csv_row += [va[0], te[0], va[1], te[1], va[2], te[2]]
+            csv_wr.writerow(csv_row)
 
             print(f"Epoch {i:2d} Inference Time {time.time() - start_time:.3f}s")
 
