@@ -179,14 +179,14 @@ def model_train(
                 min_val,
             )
 
-            for i, ix in enumerate(tmp_idx):
+            for k, ix in enumerate(tmp_idx):
                 va, te = min_va_val[ix - 2 : ix + 1], min_val[ix - 2 : ix + 1]
                 summary1, summary2, summary3 = sess.run(
-                    [MAPE_summary[i], MAE_summary[i], RMSE_summary[i]],
+                    [MAPE_summary[k], MAE_summary[k], RMSE_summary[k]],
                     feed_dict={
-                        MAPE_metrics[i]: [va[0], te[0]],
-                        MAE_metrics[i]: [va[1], te[1]],
-                        RMSE_metrics[i]: [va[2], te[2]],
+                        MAPE_metrics[k]: [va[0], te[0]],
+                        MAE_metrics[k]: [va[1], te[1]],
+                        RMSE_metrics[k]: [va[2], te[2]],
                     },
                 )
                 writer.add_summary(summary1, i * epoch_step)
