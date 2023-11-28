@@ -86,11 +86,11 @@ def model_train(
     saved_name = "STGCN-TCN" if is_modified else "STGCN"
 
     # Infernece metrics
-    MAPE_metrics = tf.placeholder(tf.float32, name="Inference_MAPE")
+    MAPE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAPE")
     MAPE_summary = tf.summary.scalar("Inference_MAPE", MAPE_metrics)
-    MAE_metrics = tf.placeholder(tf.float32, name="Inference_MAE")
+    MAE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_MAE")
     MAE_summary = tf.summary.scalar("Inference_MAE", MAE_metrics)
-    RMSE_metrics = tf.placeholder(tf.float32, name="Inference_RMSE")
+    RMSE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_RMSE")
     RMSE_summary = tf.summary.scalar("Inference_RMSE", RMSE_metrics)
 
     with tf.Session() as sess:
