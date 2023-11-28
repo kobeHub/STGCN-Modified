@@ -7,6 +7,7 @@ import tensorflow as tf
 import numpy as np
 import time
 import os
+import csv
 
 
 def model_train(
@@ -114,6 +115,11 @@ def model_train(
     # MAE_summary = tf.summary.scalar("Inference_MAE", MAE_metrics[0])
     # RMSE_metrics = tf.placeholder(tf.float32, shape=(2,), name="Inference_RMSE")
     # RMSE_summary = tf.summary.scalar("Inference_RMSE", RMSE_metrics[0])
+    csv_file_path = pjoin(
+        pjoin(".", "output"), "modified.csv" if is_modified else "original.csv"
+    )
+    csv_file = open(csv_file_path, "w")
+    csv_wr = csv.writer(csv_file)
 
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(pjoin(sum_path, "train"), sess.graph)
@@ -198,9 +204,14 @@ def model_train(
                     f"MAE  {va[1]:4.3f}, {te[1]:4.3f}; "
                     f"RMSE {va[2]:6.3f}, {te[2]:6.3f}."
                 )
+                csv_wr.writerow(
+                    [epoch_step * i, va[0], te[0], va[1], te[1], va[2], te[2]]
+                )
+
             print(f"Epoch {i:2d} Inference Time {time.time() - start_time:.3f}s")
 
             if (i + 1) % args.save == 0:
                 model_save(saver, sess, global_steps, saved_name, model_save_dir)
         writer.close()
+        csv_file.close()
     print("Training model finished!")
