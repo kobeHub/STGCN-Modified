@@ -85,6 +85,14 @@ def model_train(
     saver = tf.train.Saver(max_to_keep=3)
     saved_name = "STGCN-TCN" if is_modified else "STGCN"
 
+    # Infernece metrics
+    MAPE_metrics = tf.placeholder(tf.float32, name="Inference_MAPE")
+    MAPE_summary = tf.summary.scalar("Inference_MAPE", MAPE_metrics)
+    MAE_metrics = tf.placeholder(tf.float32, name="Inference_MAE")
+    MAE_summary = tf.summary.scalar("Inference_MAE", MAE_metrics)
+    RMSE_metrics = tf.placeholder(tf.float32, name="Inference_RMSE")
+    RMSE_summary = tf.summary.scalar("Inference_RMSE", RMSE_metrics)
+
     with tf.Session() as sess:
         writer = tf.summary.FileWriter(pjoin(sum_path, "train"), sess.graph)
         latest_ckp = tf.train.latest_checkpoint(model_save_dir)
@@ -151,6 +159,15 @@ def model_train(
 
             for ix in tmp_idx:
                 va, te = min_va_val[ix - 2 : ix + 1], min_val[ix - 2 : ix + 1]
+                summary_str, _ = sess.run(
+                    [MAPE_summary, MAE_summary, RMSE_summary],
+                    feed_dict={
+                        MAPE_metrics: (va[0], te[0]),
+                        MAE_metrics: (va[1], te[1]),
+                        RMSE_metrics: (va[2], te[2]),
+                    },
+                )
+                writer.add_summary(summary_str, ix + 1)
                 print(
                     f"Time Step {ix + 1}: "
                     f"MAPE {va[0]:7.3%}, {te[0]:7.3%}; "
